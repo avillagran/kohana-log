@@ -33,7 +33,7 @@ class Log_Writer_File extends Log_Writer {
 		foreach ($messages as $message)
 		{
 			$log_cnt = $this->_format($message);
-			file_put_contents($filename, PHP_EOL.$log_cnt, FILE_APPEND);
+			file_put_contents($filename, PHP_EOL.$log_cnt.PHP_EOL, FILE_APPEND);
 		}
 	}
 
@@ -88,17 +88,24 @@ class Log_Writer_File extends Log_Writer {
 
 		$return .= 'agent: "'.$_SERVER['HTTP_USER_AGENT'].'" ';
 
-		$return .= "\n ".'cookie: "'.str_replace("\n", '', var_export($_COOKIE, true)).'" ';
+		$return .= PHP_EOL.' cookie: ' . $this->clean_str($_COOKIE);
 		
 		// POST & GET INFO
 		// Stolen from Kohana Rails :D
 		$params = array();
 		if($_GET) $params = array_merge($params, $_GET);
 		if($_POST) $params = array_merge($params, $_POST);
-		$return .= "\n ".'PARAMS: ' . str_replace("\n", '', var_export($params, true) );
+		
+		$return .= PHP_EOL.' PARAMS: ' . $this->clean_str($params);
 
 		return $return;
 	}
-
+	private function clean_str($array)
+	{
+		$str = str_replace("\n", '', var_export($array, true) );
+		$str = substr($str, 8, strlen($str) - 10);
+		
+		return $str;
+	}
 } // End Kohana_Log_File
 
