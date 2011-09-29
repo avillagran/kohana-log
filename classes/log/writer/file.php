@@ -1,7 +1,15 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Log_Writer_File extends Kohana_Log_Writer {
-
+class Log_Writer_File extends Log_Writer {
+	protected $_levels = array(
+							   Log::NOTICE 		=> 'Notice',
+							   Log::DEBUG 		=> 'Debug',
+							   Log::INFO		=> 'Info',
+							   Log::EMERGENCY	=> 'Emergency',
+							   Log::CRITICAL	=> 'Critical',
+							   Log::ERROR		=> 'Error',
+							   Log::WARNING		=> 'Warning'
+							);
 	protected $_directory;
 
 	public function __construct($directory)
@@ -32,7 +40,8 @@ class Log_Writer_File extends Kohana_Log_Writer {
 	protected function _format($message)
 	{
 		$return = $message['time'].' ';
-		$return .= '['.$message['type'].'] ';
+
+		$return .= '['. $this->_levels[ $message['level'] ].'] ';
 
 		/* it is hard to archive in current version
 		$script = '';
@@ -64,7 +73,7 @@ class Log_Writer_File extends Kohana_Log_Writer {
 		}
 		$return .= 'message: "'.$body.'" ';
 
-		$return .= 'client: '.Request::$client_ip.' ';
+		$return .= "\n ".'client: '.Request::$client_ip.' ';
 
 		$return .= 'uri: '.$_SERVER['REQUEST_URI']." ";
 
@@ -79,7 +88,14 @@ class Log_Writer_File extends Kohana_Log_Writer {
 
 		$return .= 'agent: "'.$_SERVER['HTTP_USER_AGENT'].'" ';
 
-		$return .= 'cookie: "'.str_replace("\n", '', var_export($_COOKIE, true)).'" ';
+		$return .= "\n ".'cookie: "'.str_replace("\n", '', var_export($_COOKIE, true)).'" ';
+		
+		// POST & GET INFO
+		// Stolen from Kohana Rails :D
+		$params = array();
+		if($_GET) $params = array_merge($params, $_GET);
+		if($_POST) $params = array_merge($params, $_POST);
+		$return .= "\n ".'PARAMS: ' . str_replace("\n", '', var_export($params, true) );
 
 		return $return;
 	}
