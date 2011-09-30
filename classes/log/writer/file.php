@@ -25,16 +25,20 @@ class Log_Writer_File extends Log_Writer {
 
 	public function write(array $messages)
 	{
-		if (!file_exists($filename = $this->_directory.date('Y-m-d').'.php'))
+		if( !Kohana::$is_cli )
 		{
-			file_put_contents($filename, '<?php die();?>'.PHP_EOL);
+			if (!file_exists($filename = $this->_directory.date('Y-m-d').'.php'))
+			{
+				file_put_contents($filename, '<?php die();?>'.PHP_EOL);
+			}
+	
+			foreach ($messages as $message)
+			{
+				$log_cnt = $this->_format($message);
+				file_put_contents($filename, PHP_EOL.$log_cnt.PHP_EOL, FILE_APPEND);
+			}			
 		}
-
-		foreach ($messages as $message)
-		{
-			$log_cnt = $this->_format($message);
-			file_put_contents($filename, PHP_EOL.$log_cnt.PHP_EOL, FILE_APPEND);
-		}
+		
 	}
 
 	protected function _format($message)
