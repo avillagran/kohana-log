@@ -90,8 +90,10 @@ class Log_Writer_File extends Log_Writer {
 			$return .= 'referer: "" ';
 		}
 
-		$return .= 'agent: "'.$_SERVER['HTTP_USER_AGENT'].'" ';
-
+		if( array_key_exists('HTTP_USER_AGENT', $_SERVER) )
+		{
+			$return .= 'agent: "'.$_SERVER['HTTP_USER_AGENT'].'" ';
+		}
 		$return .= PHP_EOL.' cookie: ' . $this->clean_str($_COOKIE);
 		
 		// POST & GET INFO
